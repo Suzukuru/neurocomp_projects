@@ -40,7 +40,7 @@ camera_position = np.array([0, 0, 0], dtype=float)
 camera_yaw = 0
 camera_pitch = 0
 movespeed = 0.01
-
+sensitivity = 0.001
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -57,29 +57,33 @@ while True:
             exit()
     
     keys = pygame.key.get_pressed()
+    rel_x, rel_y = pygame.mouse.get_rel()
+    camera_yaw += rel_x * sensitivity
+    camera_pitch += rel_y * sensitivity
 
     if keys[pygame.K_w]:
         camera_position[2] += movespeed
-        print("W")
     if keys[pygame.K_s]:
         camera_position[2] -= movespeed
     if keys[pygame.K_a]:
         camera_position[0] -= movespeed
     if keys[pygame.K_d]:
         camera_position[0] += movespeed
+        
+    # Y-axis movement
     if keys[pygame.K_q]:
         camera_position[1] += movespeed
     if keys[pygame.K_e]:
         camera_position[1] -= movespeed
 
-    print(camera_position)
-
+    print(camera_yaw)
 
     angle += 0.001
     screen.fill((20, 20, 20))
 
-    rotated = [rot_3D(angle) @ v for v in verts]
-    projected = [project_2D(v - camera_position) + [cx, cy] for v in rotated]
+    rotated = [rot_y(angle) @ v for v in verts]
+    camera_perspective = [rot_y(camera_yaw) @ rot_x(camera_pitch) @ v for v in rotated]
+    projected = [project_2D(v - camera_position) + [cx, cy] for v in camera_perspective]
     
     for a, b in edges:
         pygame.draw.line(screen, (255, 255, 255),
