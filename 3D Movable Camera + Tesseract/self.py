@@ -36,6 +36,7 @@ edges = np.array([(0, 1), (1, 2), (2, 3), (3, 0),
                   (4, 5), (5, 6), (6, 7), (7, 4),
                   (0, 4), (1, 5), (2, 6), (3, 7),])
 
+
 pygame.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((800, 1000))
@@ -52,6 +53,9 @@ while True:
     
     keys = pygame.key.get_pressed()
     
+    angle += 0.001
+    screen.fill((20, 20, 20))
+
     rotated = [rot_3D(angle) @ v for v in verts]
     projected = [project_2D(v) + [cx, cy] for v in rotated]
     print(projected)
