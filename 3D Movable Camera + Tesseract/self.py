@@ -31,10 +31,15 @@ def project_2D(v, fov=400):
 
 # [a, b, c] =  RIGHT/LEFT, TOP/BOTTOM, FRONT/BACK
 verts = np.array([[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
-                 [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]])
+                 [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]], dtype=float)
 edges = np.array([(0, 1), (1, 2), (2, 3), (3, 0),
                   (4, 5), (5, 6), (6, 7), (7, 4),
                   (0, 4), (1, 5), (2, 6), (3, 7),])
+
+camera_position = np.array([0, 0, 0], dtype=float)
+camera_yaw = 0
+camera_pitch = 0
+movespeed = 0.01
 
 
 pygame.init()
@@ -52,13 +57,29 @@ while True:
             exit()
     
     keys = pygame.key.get_pressed()
-    
+
+    if keys[pygame.K_w]:
+        camera_position[2] += movespeed
+        print("W")
+    if keys[pygame.K_s]:
+        camera_position[2] -= movespeed
+    if keys[pygame.K_a]:
+        camera_position[0] -= movespeed
+    if keys[pygame.K_d]:
+        camera_position[0] += movespeed
+    if keys[pygame.K_q]:
+        camera_position[1] += movespeed
+    if keys[pygame.K_e]:
+        camera_position[1] -= movespeed
+
+    print(camera_position)
+
+
     angle += 0.001
     screen.fill((20, 20, 20))
 
     rotated = [rot_3D(angle) @ v for v in verts]
-    projected = [project_2D(v) + [cx, cy] for v in rotated]
-    print(projected)
+    projected = [project_2D(v - camera_position) + [cx, cy] for v in rotated]
     
     for a, b in edges:
         pygame.draw.line(screen, (255, 255, 255),
