@@ -63,11 +63,11 @@ cx, cy = (400, 500)
 angle = 0
 pygame.event.set_grab(True)
 pygame.mouse.set_visible(False)
-print(pa, "\n\n", pb)
+
 print(np.shape(pa), "\n\n", np.shape(pb))
 while True:
     for e in pygame.event.get():
-        if e == pygame.QUIT: 
+        if e.type == pygame.QUIT: 
             pygame.quit()
             exit()
     
@@ -76,7 +76,7 @@ while True:
     camera_yaw += rel_x * sensitivity
     camera_pitch += rel_y * sensitivity
     
-    front = rot_y(-camera_yaw) @ np.array([0, 0, 1])
+    front = rot_y(-camera_yaw) @ rot_x(-camera_pitch) @ np.array([0, 0, 1])
     right = rot_y(-camera_yaw) @ np.array([1, 0, 0])
 
     if keys[pygame.K_w]:
@@ -88,6 +88,8 @@ while True:
     if keys[pygame.K_d]:
         camera_position += right * movespeed
         
+    print(camera_position)
+        
     # Y-axis movement
     if keys[pygame.K_q]:
         camera_position[1] += movespeed
@@ -97,11 +99,11 @@ while True:
     angle += 0.001
     screen.fill((20, 20, 20))
 
-    rotated = [rot_y(angle) @ v for v in verts]
+    rotated = [rot_3D(angle) @ v for v in verts]
     camera_perspective = [rot_y(camera_yaw) @ rot_x(camera_pitch) @ (v - camera_position) for v in rotated]
     projected = [project_2D(v) for v in camera_perspective]
     
-    print(projected)
+    #print(projected)
     
     for a, b in edges:
         va = camera_perspective[a]
