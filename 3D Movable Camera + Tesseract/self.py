@@ -50,19 +50,21 @@ edges = np.array([(0, 1), (1, 2), (2, 3), (3, 0),
 
 pa, pb = make_grid(3, 1)
 
-camera_position = np.array([0, 0, 0], dtype=float)
-camera_yaw = 0.0
-camera_pitch = 0.0
-movespeed = 0.01
-sensitivity = 0.001
-
 pygame.init()
 clock = pygame.time.Clock()
+dt = clock.tick(60) / 1000.0
 screen = pygame.display.set_mode((800, 1000))
 cx, cy = (400, 500)
 angle = 0
 pygame.event.set_grab(True)
 pygame.mouse.set_visible(False)
+
+camera_position = np.array([0, 0, 0], dtype=float)
+camera_yaw = 0.0
+camera_pitch = 0.0
+movespeed = 0.1
+sensitivity = 0.001
+
 
 print(np.shape(pa), "\n\n", np.shape(pb))
 while True:
@@ -75,8 +77,9 @@ while True:
     rel_x, rel_y = pygame.mouse.get_rel()
     camera_yaw += rel_x * sensitivity
     camera_pitch += rel_y * sensitivity
+    camera_pitch = np.clip(camera_pitch, -np.pi/2, np.pi/2)
     
-    front = rot_y(-camera_yaw) @ rot_x(-camera_pitch) @ np.array([0, 0, 1])
+    front = rot_y(-camera_yaw) @ rot_x(-camera_pitch) @  np.array([0, 0, 1])
     right = rot_y(-camera_yaw) @ np.array([1, 0, 0])
 
     if keys[pygame.K_w]:
@@ -96,7 +99,7 @@ while True:
     if keys[pygame.K_e]:
         camera_position[1] -= movespeed
 
-    angle += 0.001
+    angle += 0.01
     screen.fill((20, 20, 20))
 
     rotated = [rot_3D(angle) @ v for v in verts]
@@ -130,3 +133,4 @@ while True:
                          grid_Z)
     
     pygame.display.flip()
+    clock.tick(60)
