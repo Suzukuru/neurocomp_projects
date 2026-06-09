@@ -77,7 +77,7 @@ while True:
     rel_x, rel_y = pygame.mouse.get_rel()
     camera_yaw += rel_x * sensitivity
     camera_pitch += rel_y * sensitivity
-    camera_pitch = np.clip(camera_pitch, -np.pi/2, np.pi/2)
+    camera_pitch = np.clip(camera_pitch, -np.pi/2, np.pi/2) # gimbal lock, prevents camera from going upside down and ivnerting controls.
     
     front = rot_y(-camera_yaw) @ rot_x(-camera_pitch) @  np.array([0, 0, 1])
     right = rot_y(-camera_yaw) @ np.array([1, 0, 0])
