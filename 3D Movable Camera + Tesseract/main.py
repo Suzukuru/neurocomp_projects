@@ -5,7 +5,7 @@ import objects
 import transformations as rot
 import controls as handle
 
-AXISLIMIT = 2
+AXISLIMIT = 2 # offset trick, proper way is a clip space transform
 
 def project_3D(v):
     x, y, z, w = v
