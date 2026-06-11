@@ -8,28 +8,23 @@ def deritivative_f(S, M):
     m1, m2, m3 = M
     g = 1 # this for simulation, acl val is 6.6743 * 10**-11
     epsilon = 0.1
-    displacement = [x2-x1, y2-y1, # r12 
-                    x3-x1, y3-y1, # r13 
-                    x3-x2, y3-y2] # r23 
+
+    dx12, dy12 = x2-x1, y2-y1
+    dx13, dy13 = x3-x1, y3-y1
+    dx23, dy23 = x3-x2, y3-y2 
     
-    d12 = ((displacement[0])**2 + (displacement[1])**2 + epsilon**2) ** (3/2)
-    d13 = ((displacement[2])**2 + (displacement[3])**2 + epsilon**2) ** (3/2)
-    d23 = ((displacement[4])**2 + (displacement[5])**2 + epsilon**2) ** (3/2)
+    softened_r12 = ((dx12)**2 + (dy12)**2 + epsilon**2) ** (3/2)
+    softened_r13 = ((dx13)**2 + (dy13)**2 + epsilon**2) ** (3/2)
+    softened_r23 = ((dx23)**2 + (dy23)**2 + epsilon**2) ** (3/2)
     
-    ax1 = g*m2*displacement[0]/d12 + g*m3*displacement[2]/d13
-            #x2-x1                      #x3-x1            
-    ay1 = g*m2*displacement[1]/d12 + g*m3*displacement[3]/d13
-            #y2-y1                      #y3-y1            
+    ax1 = g*m2*dx12/softened_r12 + g*m3*dx13/softened_r13            
+    ay1 = g*m2*dy12/softened_r12 + g*m3*dy13/softened_r13           
             
-    ax2 = g*m3*displacement[4]/d23 + g*m1*-displacement[0]/d12
-            #x3-x2                      #x1-x2            
-    ay2 = g*m3*displacement[5]/d23 + g*m1*-displacement[1]/d12
-            #y3-y2                      #y1-y2            
+    ax2 = g*m3*dx23/softened_r23 + g*m1*-dx12/softened_r12         
+    ay2 = g*m3*dy23/softened_r23 + g*m1*-dy12/softened_r12         
     
-    ax3 = g*m1*-displacement[2]/d13 + g*m2*-displacement[4]/d23
-            #x1-x3                      #x2-x3            
-    ay3 = g*m1*-displacement[3]/d13 + g*m2*-displacement[5]/d23
-            #y1-y3                      #y2-y3            
+    ax3 = g*m1*-dx13/softened_r13 + g*m2*-dx23/softened_r23           
+    ay3 = g*m1*-dy13/softened_r13 + g*m2*-dy23/softened_r23          
     
     return np.array([vx1,vy1,vx2,vy2,vx3,vy3,ax1,ay1,ax2,ay2,ax3,ay3])
 
