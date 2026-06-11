@@ -1,5 +1,6 @@
-import pygame, transformations as rot, controls
+import pygame, numpy as np
 
+rng = np.random.default_rng()
 _key_cooldowns = {}
 COOLDOWN = 1000
 
@@ -12,7 +13,7 @@ def can_press(key):
 
 def user_CameraMovement(keys, front, right, up, movespeed, camera_position):
     if keys[pygame.K_w]:
-        camera_position += front * movespeed
+        camera_position += (front * movespeed)
     if keys[pygame.K_s]:
         camera_position -= front * movespeed
     if keys[pygame.K_a]:
@@ -28,45 +29,15 @@ def user_CameraMovement(keys, front, right, up, movespeed, camera_position):
     
     return camera_position
 
-def user_ObjectRotation(keys, active_object, d_angle, dt, full_rotation):
-    ### Rotation Controls
-    if active_object.type == "cube":
-        if keys[pygame.K_1]:
-            active_object.rotation = [rot.X_3D(d_angle * dt) @ v for v in active_object.rotation]
-        if keys[pygame.K_2]:
-            active_object.rotation = [rot.Y_3D(d_angle * dt) @ v for v in active_object.rotation]
-        if keys[pygame.K_3]:
-            active_object.rotation = [rot.Z_3D(d_angle * dt) @ v for v in active_object.rotation]
-    elif active_object.type == "tesseract":
-        if keys[pygame.K_1]:
-            active_object.rotation = [rot.YW_4D(d_angle * dt) @ v for v in active_object.rotation]
-        if keys[pygame.K_2]:
-            active_object.rotation = [rot.XW_4D(d_angle * dt) @ v for v in active_object.rotation]
-        if keys[pygame.K_3]:
-            active_object.rotation = [rot.ZW_4D(d_angle * dt) @ v for v in active_object.rotation]
-        if keys[pygame.K_4]:
-            active_object.rotation = [rot.YZ_4D(d_angle * dt) @ v for v in active_object.rotation]
-        if keys[pygame.K_5]:
-            active_object.rotation = [rot.XZ_4D(d_angle * dt) @ v for v in active_object.rotation]
-        if keys[pygame.K_6]:
-            active_object.rotation = [rot.XY_4D(d_angle * dt) @ v for v in active_object.rotation]
-
-    if keys[pygame.K_BACKQUOTE] and can_press(pygame.K_BACKQUOTE):
-        full_rotation = not full_rotation
-    
-    return full_rotation, active_object.rotation
-
-"""def user_ShapeChoice(keys, active_object, screen):
-    ### Object Selection
-    if keys[pygame.K_c] and can_press(pygame.K_c):
-        active_object = objects.cube
-        active_object.rotation = objects.cube.verts.copy()
-        screen.fill((0, 0, 0))
-    if keys[pygame.K_t] and can_press(pygame.K_t):
-        active_object = objects.tesseract
-        active_object.rotation = objects.tesseract.verts.copy()
-        screen.fill((0, 0, 0))
+def user_ObjectState(keys, S, M, body_trail):
+    if keys[pygame.K_r] and can_press(pygame.K_r):
+        S = rng.uniform(low=-2, high=2, size=12)
+        M = rng.uniform(low=1, high=3, size=3)
+        body_trail = []
+    if keys[pygame.K_1] and can_press(pygame.K_1):
+        S = np.array([0.97000436, -0.24308753, -0.97000436, 0.24308753, 0, 0,
+                        0.466203685, 0.43236573, 0.466203685, 0.43236573, -0.93240737, -0.86473146]) 
+        M = np.array([1.0, 1.0, 1.0])
+        body_trail = []
         
-    return active_object
-
-"""
+    return S, M, body_trail
