@@ -3,6 +3,8 @@ import numpy as np
 import transformations as rot
 import controls as handle
 import physics
+import renderer
+import camera
 
 def get_position_matrix(S):
         return np.array([[S[0], S[1], 3],

@@ -13,7 +13,7 @@ def can_press(key):
 
 def user_CameraMovement(keys, front, right, up, movespeed, camera_position):
     if keys[pygame.K_w]:
-        camera_position += (front * movespeed)
+        camera_position += front * movespeed
     if keys[pygame.K_s]:
         camera_position -= front * movespeed
     if keys[pygame.K_a]:
@@ -34,7 +34,7 @@ def user_ObjectState(keys, S, M, body_trail):
         S = rng.uniform(low=-1, high=1, size=12)
         M = rng.uniform(low=1, high=3, size=3)
         body_trail = []
-    if keys[pygame.K_1] and can_press(pygame.K_1):
+    if keys[pygame.K_8] and can_press(pygame.K_8):
         S = np.array([0.97000436, -0.24308753, -0.97000436, 0.24308753, 0, 0,
                         0.466203685, 0.43236573, 0.466203685, 0.43236573, -0.93240737, -0.86473146]) 
         M = np.array([1.0, 1.0, 1.0])
