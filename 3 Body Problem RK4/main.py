@@ -90,7 +90,7 @@ while True:
                     exit()  
                     
     # Pygame Properties
-    dt = clock.tick(120)/1000
+    dt = clock.tick(60)/1000
     screen.fill((20, 20, 20))
     keys = pygame.key.get_pressed()
     rel_x, rel_y = pygame.mouse.get_rel()
