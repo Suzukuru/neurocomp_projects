@@ -84,10 +84,10 @@ time = 1
 
 while True:
     for e in pygame.event.get():
-            if e.type == pygame.QUIT:
-                    print(physics.conservation_momentum(S, M))
-                    pygame.quit()
-                    exit()  
+        if e.type == pygame.QUIT:
+            print(physics.conservation_momentum(S, M))
+            pygame.quit()
+            exit()  
                     
     # Pygame Properties
     dt = clock.tick(60)/1000
@@ -131,14 +131,14 @@ while True:
     
     for i in range(3): 
         if camera_projection[i][2] > 0.1: 
-                body_x = screen_projection[i][0]
-                body_y = screen_projection[i][1]
-                radius_z = np.log(np.linalg.norm(camera_projection[i]))
-                radius = 10/radius_z
-                radius = min(radius, 100)
-                #print(f"{i}: {camera_projection[i]}\n{i}: {radius_z}\nbaseline size: {M[i]*10}\nradius: {radius}")
-                pygame.draw.circle(screen, colors[i], (body_x+cx, body_y+cy), radius) 
-                    
+            body_x = screen_projection[i][0]
+            body_y = screen_projection[i][1]
+            radius_z = np.log(np.linalg.norm(camera_projection[i]))
+            radius = 10/radius_z
+            radius = min(radius, 100)
+            #print(f"{i}: {camera_projection[i]}\n{i}: {radius_z}\nbaseline size: {M[i]*10}\nradius: {radius}")
+            pygame.draw.circle(screen, colors[i], (body_x+cx, body_y+cy), radius) 
+                
     draw_grids(pa, pb)
     S = physics.rk4(S, M, h) 
 
