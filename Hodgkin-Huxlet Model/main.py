@@ -39,10 +39,7 @@ def rk4(S, h):
 def initialize_resting():
     V = -65
     a, b = calculate_alpha_beta(V)
-    gates = [] # n m h
-    for i in range(3):
-        gates.append(a[i]/(a[i]+b[i]))
-    n, m, h = gates
+    n, m, h = a / (a + b)
     
     return np.array([V, n, m, h])
 
