@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Constants
+# Constants defined in HH model paper
 E_na = 50
 E_k= -77
 E_l = -54
@@ -60,10 +60,16 @@ def initialize_resting():
 if __name__ == "__main__":
     # State vector components: V, n, m, h
     S = initialize_resting()
-
     signal = []
     signal.append(S)
-    I_ext = 25.3
+    
+    I_ext = 0
+    for i in range(30000):
+        S = rk4(S, dt)
+        signal.append(S)
+    print(signal[-1])
+    
+    I_ext = 20
     for i in range(100800):
         S = rk4(S, dt)
         signal.append(S)
@@ -79,30 +85,43 @@ if __name__ == "__main__":
     signal = np.array(signal)
     time = np.arange(len(signal)) * (dt)
 
-    fig, axes = plt.subplots(2, 2, figsize=(15,10))
+    voltage_sim = signal[:, 0]
+    gates_sim = signal[:, 1:4]
+    conductance_k = g_k*signal[:, 1]**4
+    conductance_na = g_na*signal[:, 2]**3*signal[:, 3]
+    na_gate = signal[:, 2]**3*signal[:, 3]
+    k_gate = signal[:, 1]**4
 
-    axes[0][0].plot(time, signal[:, 1:4])
-    axes[0][0].set_title("voltage channel gates")
-    axes[0][0].set_ylabel("% open")
+    fig, axes = plt.subplots(2, 3, figsize=(15,10))
+
+    axes[0][0].plot(time, voltage_sim)
+    axes[0][0].set_title("V_membrane over time")
+    axes[0][0].set_ylabel("mV")
     axes[0][0].set_xlabel("ms")
-    axes[0][0].legend(["n", "m", "h"])
-
-    axes[0][1].plot(time, signal[:, 0])
-    axes[0][1].set_title("membrane voltage over time")
-    axes[0][1].set_ylabel("mV")
+    axes[0][0].legend(["mV"])
+    
+    axes[0][1].plot(time, gates_sim)
+    axes[0][1].set_title("raw gate proportions")
+    axes[0][1].set_ylabel("proportion")
     axes[0][1].set_xlabel("ms")
-    axes[0][1].legend(["mV"])
+    axes[0][1].legend(["n", "m", "h"])
+    
+    axes[0][2].plot(time, k_gate)
+    axes[0][2].plot(time, na_gate)
+    axes[0][2].set_title("na vs k gates opened")
+    axes[0][2].set_ylabel("% open")
+    axes[0][2].set_xlabel("ms")
+    axes[0][2].legend(["n", "m**3*h"])
 
-    axes[1][0].plot(time, (g_k*signal[:, 1]**4))
-    axes[1][0].set_title("potassium conductance")
+    axes[1][0].plot(time, conductance_k)
+    axes[1][0].set_title("K conductance")
     axes[1][0].set_ylabel("m*mho/cm^3")
     axes[1][0].set_xlabel("ms")
     axes[1][0].legend(["C"])
 
-    axes[1][1].plot(time, (g_na*signal[:, 2]**3*signal[:, 3]))
-    axes[1][1].set_title("sodium conductance")
+    axes[1][1].plot(time, conductance_na)
+    axes[1][1].set_title("Na conductance")
     axes[1][1].set_ylabel("m*mho/cm^3")
     axes[1][1].set_xlabel("ms")
     axes[1][1].legend(["C"])
     plt.show()
-    plt.tight_layout()
