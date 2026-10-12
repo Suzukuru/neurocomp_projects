@@ -1,39 +1,23 @@
 # Random Practice and Projects
 
 ## Linear Algebra Focus
+### 3D Movable Camera + Tesseract
+Simulates a 3D camera by performing Euler 3D rotation matrix multiplication on the vertices of the lines drawn, the lines follow their respective vertices as they are transformed. The rotation matrix is reversed for left and right panning to adjust for the camera UX conventions. Movement is achieved by incrementing/decrementing Z for WS keys respectively, X for AD respectively, and Y for QE respectively (utilizes cross product). \
+\
+Tesseract is the same idea, applying a 4D rotation matrix onto the tesseract vertices and the lines follow their respective vertices as they are transformed. \
+\
+The calculations are done within the dimensions of the object (object space), but these two are ultimately projected onto a 2D screen (screen space). A 3D to 2D projection matrix is applied to the camera, while for the tesseract a 4D to 3D then 3D to 2D projection matrix is applied. \
+\
+Pitch rotation is limited to 180 degrees to prevent gimbal lock using np.clip() as exceeding it leads the matrix collapsing a dimension leading to camera bugs. 
+### 3 Body Problem RK4
+3D dynamical system evolving inside of world space
 
 ## Computational Neuroscience Focus
 ### Hodgkin-Huxley Model
-Four coupled first order ODEs showing the magic inside of action potentials using RK4 (classic fixed-step fourth-order Runge-Kutta) for a numerical approximation. The following equations are derived from the HH paper with the resting voltage adjusted by -65 to fit current standards.
+Four coupled first order ODEs showing the magic inside of action potentials using RK4 (classic fixed-step fourth-order Runge-Kutta) for a numerical approximation. The following equations are derived from the HH paper with the resting voltage adjusted by -65mV to fit current standards.
 
-#### Equations and Constants
-
-**Membrane voltage**
-
-```math
-C_m \frac{dV}{dt} = I_{\text{ext}} - I_{\text{Na}} - I_{\text{K}} - I_{\text{L}}
-```
-
-**Ionic currents**
-
-```math
-\begin{aligned}
-I_{\text{Na}} &= \bar{g}_{\text{Na}} m^3 h (V - E_{\text{Na}}) \\
-I_{\text{K}} &= \bar{g}_{\text{K}} n^4 (V - E_{\text{K}}) \\
-I_{\text{L}} &= \bar{g}_{\text{L}} (V - E_{\text{L}})
-\end{aligned}
-```
-
-**Gating variables**
-
-Each gate $`x \in \{n, m, h\}`$ is the fraction of open gates and follows first-order kinetics:
-
-```math
-\frac{dx}{dt} = \alpha_x(V)(1 - x) - \beta_x(V)x
-```
-
-**Rate functions** ($`V`$ in mV, resting potential at $`-65`$ mV)
-
+#### **Rate functions** ($`V`$ in mV) 
+Adjusting resting potential the  adjusted by -65mV, requires adjusting the the rate functions of the voltage-dependent gates so they behave as expected.
 ```math
 \begin{aligned}
 \alpha_n(V) &= \frac{0.01(V + 55)}{1 - e^{-(V + 55)/10}} & \beta_n(V) &= 0.125 e^{-(V + 65)/80} \\[6pt]
@@ -42,41 +26,18 @@ Each gate $`x \in \{n, m, h\}`$ is the fraction of open gates and follows first-
 \end{aligned}
 ```
 
-**Conductances**
+#### **Initial conditions**
 
-```math
-g_{\text{K}}(t) = \bar{g}_{\text{K}} n^4
-\qquad
-g_{\text{Na}}(t) = \bar{g}_{\text{Na}} m^3 h
-```
-
-**Initial conditions**
-
-Gates start at their steady-state values for $`V_0 = -65`$ mV:
-
+Gates start at their steady-state values for $`V_0 = -65`$ mV, executed by the initialize_resting() function:
 ```math
 x_\infty = \frac{\alpha_x(V_0)}{\alpha_x(V_0) + \beta_x(V_0)}, \qquad x \in \{n, m, h\}
-```
-
-**Numerical integration (RK4)**
-
-With state vector $`\mathbf{S} = [V, n, m, h]^T`$ and $`\mathbf{S}' = \mathbf{f}(\mathbf{S})`$:
-
-```math
-\begin{aligned}
-\mathbf{k}_1 &= \mathbf{f}(\mathbf{S}_i) \\
-\mathbf{k}_2 &= \mathbf{f}\left(\mathbf{S}_i + \tfrac{\Delta t}{2}\mathbf{k}_1\right) \\
-\mathbf{k}_3 &= \mathbf{f}\left(\mathbf{S}_i + \tfrac{\Delta t}{2}\mathbf{k}_2\right) \\
-\mathbf{k}_4 &= \mathbf{f}\left(\mathbf{S}_i + \Delta t \mathbf{k}_3\right)
-\end{aligned}
 ```
 
 ```math
 \mathbf{S}_{i+1} = \mathbf{S}_i + \frac{\Delta t}{6}\left(\mathbf{k}_1 + 2\mathbf{k}_2 + 2\mathbf{k}_3 + \mathbf{k}_4\right)
 ```
 
-**Constants**
-
+#### **Constants**
 | Parameter | Symbol | Value | Units |
 |---|---|---|---|
 | Sodium reversal potential | $`E_{\text{Na}}`$ | 50 | mV |
@@ -88,12 +49,12 @@ With state vector $`\mathbf{S} = [V, n, m, h]^T`$ and $`\mathbf{S}' = \mathbf{f}
 | Membrane capacitance | $`C_m`$ | 1 | µF/cm² |
 | Time step | $`\Delta t`$ | 0.001 | ms |
 
-#### Simulation Protocol
+#### **State and functions**
+- **`S`** (snapshot of the system's state) contains:
+  - `V`: neuron's voltage
+  - `n`: K channel activation
+  - `m`: Na channel activation
+  - `h`: Na channel inactivation
+- **`derive_f()`** takes in `S` (snapshot of the state), utilizing the equations from the HH paper and the adjusted rate functions. It returns the rate of change of each variable in the state.
+- **`rk4()`** numerically approximates by adding to the current state the final approximation of change from `derive_f()` at each step size.
 
-| Phase | Duration | $`I_{\text{ext}}`$ |
-|---|---|---|
-| Settle at rest | 30 ms | 0 µA/cm² |
-| Stimulus | 100.8 ms | 20 µA/cm² |
-| Recovery | 100 ms | 0 µA/cm² |
-
-The state variables are V (neuron's voltage), n (K channel activation), m (Na channel activation), and h (Na channel inactivation). This is returned by derive_f() function. 
